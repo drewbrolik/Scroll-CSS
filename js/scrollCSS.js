@@ -1,7 +1,7 @@
 /*
 Scroll CSS jQuery Plugin
 Version 1.0.0
-Apr 25st, 2013
+Jul 30th, 2013
 
 Documentation: http://
 Repository: https://github.com/drewbrolik/Scroll-CSS
@@ -31,6 +31,7 @@ along with Scroll CSS.  If not, see <http://www.gnu.org/licenses/>.
 /*
 Changelog
 4/25/13 Initial plugin (1.0.0)
+7/30/13 Bug fixes
 */
 
 (function($) {
@@ -42,9 +43,7 @@ Changelog
 			cssStartVal:"0px",
 			cssStopVal:"100px",
 			scrollStartVal:100,
-			scrollStopVal:800,
-			onStart:function() { return true; },
-			onStop:function() { return true; }
+			scrollStopVal:800
 		}
 		options = $.extend(options, additionalOptions ); //- override default options with user-supplied options
 		
@@ -57,71 +56,80 @@ Changelog
 			var cssUnit = options.cssStartVal.replace(cssStartVal,""); // ends up always being pixels anyway...
 
 			var cssStopVal = parseInt(options.cssStopVal);
+			if (cssUnit == "") { cssUnit = options.cssStopVal.replace(cssStopVal,""); } // in case start value was 0 (no unit specified)...
 
 			var scrollStartVal;
 			var scrollStopVal;
 
 			$(window).on("ready load scroll resize",function() {
+				if (!$("html").hasClass("touch")) { // this prevents scrollCSS from running on touchscreens, but it requires Conditionizr (http://conditionizr.com). If you don't have Conditionizr, the plugin will still work.
 
-				// convert scrollStartVal into a number (if it's not already)
-				if (options.scrollStartVal != parseInt(options.scrollStartVal)) { // not a number
-					if (options.scrollStartVal.indexOf("+") > -1) { // anchor plus math
-						var scrollStartValArray = options.scrollStartVal.split("+");
-						scrollStartValAnchorOffset = $(scrollStartValArray[0]).offset().top;
-						scrollStartVal = parseInt(scrollStartValAnchorOffset)+parseInt(scrollStartValArray[1]);
-					} else if (options.scrollStartVal.indexOf("-") > -1) { // anchor minus math
-						var scrollStartValArray = options.scrollStartVal.split("-");
-						scrollStartValAnchorOffset = $(scrollStartValArray[0]).offset().top;
-						scrollStartVal = parseInt(scrollStartValAnchorOffset)-parseInt(scrollStartValArray[1]);
-					} else { // just anchor
-						scrollStartVal = $(options.scrollStartVal).offset().top;
-					}
+					// convert scrollStartVal into a number (if it's not already)
+					if (options.scrollStartVal != parseInt(options.scrollStartVal)) { // not a number
+						
+						if (options.scrollStartVal.indexOf("+") > -1) { // anchor plus math
+							var scrollStartValArray = options.scrollStartVal.split("+");
+							scrollStartValAnchorOffset = $(scrollStartValArray[0]).offset().top;
+							scrollStartVal = parseInt(scrollStartValAnchorOffset)+parseInt(scrollStartValArray[1]);
+						} else if (options.scrollStartVal.indexOf("-") > -1) { // anchor minus math
+							var scrollStartValArray = options.scrollStartVal.split("-");
+							scrollStartValAnchorOffset = $(scrollStartValArray[0]).offset().top;
+							scrollStartVal = parseInt(scrollStartValAnchorOffset)-parseInt(scrollStartValArray[1]);
+						} else { // just anchor
+							scrollStartVal = $(options.scrollStartVal).offset().top;
+						}
 
-				} else { // already a number
-					scrollStartVal = options.scrollStartVal;
-				}
-
-				// convert scrollStopVal into a number (if it's not already)
-				if (options.scrollStopVal != parseInt(options.scrollStopVal)) { // not a number
-					if (options.scrollStopVal.indexOf("+") > -1) { // anchor plus math
-						var scrollStopValArray = options.scrollStopVal.split("+");
-						scrollStopValAnchorOffset = $(scrollStopValArray[0]).offset().top;
-						scrollStopVal = parseInt(scrollStopValAnchorOffset)+parseInt(scrollStopValArray[1]);
-					} else if (options.scrollStopVal.indexOf("-") > -1) { // anchor minus math
-						var scrollStopValArray = options.scrollStopVal.split("-");
-						scrollStopValAnchorOffset = $(scrollStopValArray[0]).offset().top;
-						scrollStopVal = parseInt(scrollStopValAnchorOffset)-parseInt(scrollStopValArray[1]);
-					} else { // just anchor
-						scrollStopVal = $(options.scrollStopVal).offset().top;
-					}
-
-				} else { // already a number
-					scrollStopVal = options.scrollStopVal;
-				}
-
-				// scroll stuff
-				var scrollVal = $(window).scrollTop();
-				var thisCss = {};
-
-				if (scrollVal < scrollStartVal) {
-
-					thisCss[options.cssProperty] = options.cssStartVal;
-					$this.css(thisCss);
-
-				} else if (scrollVal >= scrollStartVal && scrollVal <= scrollStopVal) {
+					} else { // already a number
+						
+						scrollStartVal = options.scrollStartVal;
 					
-					var percentageDecimal = (scrollVal-scrollStartVal)/(scrollStopVal-scrollStartVal);
-					var cssVal = (cssStopVal-cssStartVal)*percentageDecimal+cssStartVal;
+					}
 
-					thisCss[options.cssProperty] = cssVal+cssUnit;
-					$this.css(thisCss);
+					// convert scrollStopVal into a number (if it's not already)
+					if (options.scrollStopVal != parseInt(options.scrollStopVal)) { // not a number
+						
+						if (options.scrollStopVal.indexOf("+") > -1) { // anchor plus math
+							var scrollStopValArray = options.scrollStopVal.split("+");
+							scrollStopValAnchorOffset = $(scrollStopValArray[0]).offset().top;
+							scrollStopVal = parseInt(scrollStopValAnchorOffset)+parseInt(scrollStopValArray[1]);
+						} else if (options.scrollStopVal.indexOf("-") > -1) { // anchor minus math
+							var scrollStopValArray = options.scrollStopVal.split("-");
+							scrollStopValAnchorOffset = $(scrollStopValArray[0]).offset().top;
+							scrollStopVal = parseInt(scrollStopValAnchorOffset)-parseInt(scrollStopValArray[1]);
+						} else { // just anchor
+							scrollStopVal = $(options.scrollStopVal).offset().top;
+						}
 
-				} else if (scrollVal > scrollStopVal) {
+					} else { // already a number
+						
+						scrollStopVal = options.scrollStopVal;
+					
+					}
 
-					thisCss[options.cssProperty] = options.cssStopVal;
-					$this.css(thisCss);
+					// scroll stuff
+					var scrollVal = $(window).scrollTop();
+					var thisCss = {};
 
-				}
+					if (scrollVal < scrollStartVal) {
+
+						thisCss[options.cssProperty] = options.cssStartVal;
+						$this.css(thisCss);
+
+					} else if (scrollVal >= scrollStartVal && scrollVal <= scrollStopVal) {
+						
+						var percentageDecimal = (scrollVal-scrollStartVal)/(scrollStopVal-scrollStartVal);
+						var cssVal = (cssStopVal-cssStartVal)*percentageDecimal+cssStartVal;
+
+						thisCss[options.cssProperty] = cssVal+cssUnit;
+						$this.css(thisCss);
+
+					} else if (scrollVal > scrollStopVal) {
+
+						thisCss[options.cssProperty] = options.cssStopVal;
+						$this.css(thisCss);
+
+					}
+				} // if !.touch (to prevent touch screens, uses Conditionizr)
 
 			});
 
