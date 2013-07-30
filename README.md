@@ -56,4 +56,9 @@ $("element").scrollCSS({
 });
 ```
 
+**Conditionizr**  
+This plugin contains code that prevents it from firing on touch screen devices. Until we can find a better work around, Conditionizr is an easy way to simply disable the ScrollCSS effect on any device that identifies itself as a touch screen device.
+
+Conditionizr is a separate plugin, found at http://conditionizr.com. If you prefer not to include Conditionizr, ScrollCSS will not break, but you may get unwanted results on touchscreens.
+
 Questions? Email leverage@brolik.com
